@@ -1,4 +1,5 @@
 # reinfra
+[![Build Status](https://travis-ci.org/ds0nt/reinfra.svg?branch=master)](https://travis-ci.org/ds0nt/reinfra)
 
 Opinionated microservices infrastructure framework. This is an initial release that is probably still broken, but I'm implementing it in my personal set of microservices and will give it some love.
 

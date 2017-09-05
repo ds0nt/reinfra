@@ -29,13 +29,11 @@ import (
 	  - use service IsReady to power readiness probes
 	  - blocks until stopped by an error
 	  - tears down service if error occurs
-
 */
 
 type Service struct {
 	parentContext context.Context
 	components    []ServiceComponent
-	stopCh        chan error
 	readymanager.ReadyManager
 	logger *logrus.Logger
 	entry  *logrus.Entry
@@ -53,15 +51,16 @@ func (s *Service) Init() {
 }
 
 // Run starts all of a services components. It returns if a service errors, or the context is cancelled
-func (s *Service) Run(ctx context.Context, errors chan error) {
+func (s *Service) Run(ctx context.Context) chan error {
 	s.parentContext = ctx
-	s.stopCh = make(chan error)
+	stopCh := make(chan error) //, len(s.components))
+	errors := make(chan error) //, len(s.components)+1)
 
 	for _, c := range s.components {
 		go func(c ServiceComponent) {
 			err := c.Run(s)
 			if err != nil {
-				s.stopCh <- err
+				stopCh <- err
 			}
 		}(c)
 
@@ -69,29 +68,32 @@ func (s *Service) Run(ctx context.Context, errors chan error) {
 		time.Sleep(time.Millisecond * 10)
 	}
 
-	// time.Sleep(time.Millisecond * 100)
-
 	s.ReadyManager.SetReady()
 
-	select {
-	case x := <-s.stopCh:
-		errors <- x
-	case <-ctx.Done():
-		errors <- ctx.Err()
-	}
-}
-
-func (s *Service) Stop() error {
-	for _, c := range s.components {
-		err := c.Stop(s)
-		if err != nil {
-			return err
+	go func() {
+		select {
+		case x := <-stopCh:
+			errors <- x
+		case <-ctx.Done():
+			errors <- ctx.Err()
 		}
-	}
+		s.ReadyManager.SetUnready()
 
-	return nil
+		for _, c := range s.components {
+			err := c.Stop(s)
+			if err != nil {
+				errors <- err
+			}
+		}
+		// close(stopCh)
+		close(errors)
+	}()
+
+	return errors
 }
 
+// Context returns the services context. All components should stop when this context
+// is done.
 func (s *Service) Context() context.Context {
 	return s.parentContext
 }

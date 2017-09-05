@@ -80,11 +80,6 @@ func Init(obj interface{}) {
 // Run is one run method to rule them all
 // ready channel is closed when service is ready
 func Run(ctx context.Context, obj interface{}) chan error {
-	var (
-		errCh        = make(chan error)
-		serviceErrCh = make(chan error)
-	)
-
 	svc := reflectService(obj)
 	if svc == nil {
 		panic("cannot run a non service.Service")
@@ -96,21 +91,7 @@ func Run(ctx context.Context, obj interface{}) chan error {
 		svc.RegisterComponent(c)
 	}
 
-	go func() {
-		go svc.Run(ctx, serviceErrCh)
-		defer svc.Stop()
-		defer close(errCh)
-
-		select {
-		case err := <-serviceErrCh:
-			fmt.Println("A pipes-3 service component errored:", err)
-			errCh <- err
-		case <-ctx.Done():
-			fmt.Println("Pipes-3 run context done:")
-		}
-	}()
-
-	return errCh
+	return svc.Run(ctx)
 }
 
 func reflectService(obj interface{}) *service.Service {

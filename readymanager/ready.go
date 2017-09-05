@@ -34,3 +34,10 @@ func (r *ReadyManager) SetReady() {
 	}
 
 }
+
+func (r *ReadyManager) SetUnready() {
+	r.readyChMu.Lock()
+	defer r.readyChMu.Unlock()
+	r.ready = false
+	r.readyCh = make(chan struct{})
+}

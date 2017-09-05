@@ -6,4 +6,4 @@ go:
 install:
   - go get -v github.com/Masterminds/glide
   - glide install
-  - go test
+  - ginkgo -v

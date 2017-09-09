@@ -4,7 +4,7 @@ go:
   - master
 
 install:
-  - export PATH=$PATH:$HOME/gopath/bin # travis' worker doesn't seem to do this consistently
+  # - export PATH=$PATH:$HOME/gopath/bin # travis' worker doesn't seem to do this consistently
   - go get -v github.com/Masterminds/glide
   - go get -v github.com/onsi/ginkgo
   # - mkdir protoc
@@ -13,4 +13,4 @@ install:
   # - mv bin/protoc $HOME/gopath/bin/protoc # oh yeah, hijack the gopath bin
   # - cd -
   - glide install
-  - ginkgo test -v .
+  - $(GOPATH)/bin/ginkgo test -v .

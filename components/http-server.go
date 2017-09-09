@@ -12,12 +12,16 @@ import (
 )
 
 type HTTPServer struct {
+	Addr        string
 	server      *http.Server
 	HTTPHandler http.Handler
 	readymanager.ReadyManager
 }
 
 func (s *HTTPServer) Run(*service.Service) error {
+	if len(s.Addr) == 0 {
+		s.Addr = config.GRPCAddr
+	}
 	fmt.Println("HTTP Server listening on", config.HTTPAddr)
 	s.server = &http.Server{Addr: config.HTTPAddr}
 	s.server.Handler = s.HTTPHandler

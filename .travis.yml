@@ -13,4 +13,4 @@ install:
   # - mv bin/protoc $HOME/gopath/bin/protoc # oh yeah, hijack the gopath bin
   # - cd -
   - glide install
-  - make test
+  - ginkgo test -v .

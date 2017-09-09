@@ -9,14 +9,8 @@ import (
 	"github.com/ds0nt/reinfra/service"
 )
 
-// GRPCDialer is basically just a grpc client that is compatible via Init and Run
-type GRPCDialer interface {
-	Dial() (err error)
-	Close() error
-}
-
 var (
-	dialerType    = reflect.TypeOf((*GRPCDialer)(nil))
+	dialerType    = reflect.TypeOf((*components.GRPCDialer)(nil))
 	initerType    = reflect.TypeOf((*service.Initer)(nil))
 	componentType = reflect.TypeOf((*service.ServiceComponent)(nil))
 )
@@ -25,11 +19,10 @@ func isHandledPkg(pkgPath string) bool {
 	var (
 		pkg          = dialerType.PkgPath()
 		componentPkg = pkg + "/components"
-		clientPkg    = pkg + "/clients"
+		// clientPkg    = pkg + "/clients"
 	)
 	switch pkgPath {
-	case
-		pkg, clientPkg, componentPkg:
+	case pkg, componentPkg:
 		return true
 	}
 	return false
@@ -128,7 +121,7 @@ func reflectServiceComponents(obj interface{}) []service.ServiceComponent {
 
 		fmt.Printf("Scanning %s.%s\n", val.Type().String(), tf.Type.String())
 		if tf.Type.Implements(dialerType.Elem()) {
-			cmps = append(cmps, components.WrapDialer(valueField.(GRPCDialer)))
+			cmps = append(cmps, components.WrapDialer(valueField.(components.GRPCDialer)))
 			continue
 		}
 

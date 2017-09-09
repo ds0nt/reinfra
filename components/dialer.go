@@ -14,7 +14,7 @@ type DialerComponent struct {
 
 func (s *DialerComponent) Run(*service.Service) error {
 	defer s.ReadyManager.SetReady()
-	return s.dialer.Dial()
+	return s.dialer.DialReinfra()
 }
 
 func (s *DialerComponent) Stop(*service.Service) error {
@@ -43,6 +43,6 @@ func WrapDialer(d GRPCDialer) service.ServiceComponent {
 
 // GRPCDialer is basically just a grpc client that is compatible via Init and Run
 type GRPCDialer interface {
-	Dial() (err error)
+	DialReinfra() (err error)
 	Close() error
 }

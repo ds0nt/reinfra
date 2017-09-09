@@ -4,6 +4,10 @@ go:
   - master
 
 install:
+  - export PATH=$PATH:$HOME/gopath/bin # travis' worker doesn't seem to do this consistently
+  - wget https://protobuf.googlecode.com/files/protobuf-3.3.2.tar.gz
+	- tar -xzvf protobuf-3.3.2.tar.gz
+	- cd protobuf-2.4.1 && ./configure --prefix=$HOME/protobuf && make && make install
   - go get -v github.com/Masterminds/glide
   - go get -v github.com/onsi/ginkgo
   - glide install

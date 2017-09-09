@@ -20,10 +20,10 @@ type HTTPServer struct {
 
 func (s *HTTPServer) Run(*service.Service) error {
 	if len(s.Addr) == 0 {
-		s.Addr = config.GRPCAddr
+		s.Addr = config.HTTPAddr
 	}
-	fmt.Println("HTTP Server listening on", config.HTTPAddr)
-	s.server = &http.Server{Addr: config.HTTPAddr}
+	fmt.Println("HTTP Server listening on", s.Addr)
+	s.server = &http.Server{Addr: s.Addr}
 	s.server.Handler = s.HTTPHandler
 
 	go func() {

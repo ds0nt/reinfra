@@ -4,13 +4,8 @@ go:
   - master
 
 install:
-  # - export PATH=$PATH:$HOME/gopath/bin # travis' worker doesn't seem to do this consistently
-  - go get -v github.com/Masterminds/glide
-  - go get -v github.com/onsi/ginkgo
-  # - mkdir protoc
-  # - cd protoc
-  # - wget https://github.com/google/protobuf/releases/download/v3.4.0/protoc-3.4.0-linux-x86_64.zip && unzip protoc-3.4.0-linux-x86_64.zip
-  # - mv bin/protoc $HOME/gopath/bin/protoc # oh yeah, hijack the gopath bin
-  # - cd -
-  - glide install
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/onsi/gomega
+  - go install github.com/onsi/ginkgo/ginkgo
+  - export PATH=$PATH:$HOME/gopath/bin
   - $GOPATH/bin/ginkgo test -v .

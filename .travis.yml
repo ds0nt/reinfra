@@ -7,4 +7,4 @@ install:
   - go get -v github.com/Masterminds/glide
   - go get -v github.com/onsi/ginkgo
   - glide install
-  - ginkgo -v
+  - make test

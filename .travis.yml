@@ -5,7 +5,7 @@ go:
 
 install:
   - wget https://github.com/google/protobuf/releases/download/v3.4.0/protoc-3.4.0-linux-x86_64.zip
-  - unzip -xzvf protoc-3.4.0-linux-x86_64.zip
+  - unzip protoc-3.4.0-linux-x86_64.zip
   - mv protoc-3.4.0-linux-x86_64/bin/protoc /usr/bin/protoc
   - export PATH=$PATH:$HOME/gopath/bin # travis' worker doesn't seem to do this consistently
   - go get -v github.com/Masterminds/glide

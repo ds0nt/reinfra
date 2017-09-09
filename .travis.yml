@@ -6,6 +6,7 @@ go:
 install:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/onsi/gomega
+  - go get github.com/onsi/ginkgo
   - go install github.com/onsi/ginkgo/ginkgo
   - export PATH=$PATH:$HOME/gopath/bin
   - $GOPATH/bin/ginkgo test -v .

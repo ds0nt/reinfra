@@ -1,5 +1,5 @@
 hash: f37654766d417fe6f1a33850fe6ea082380002addf9e8db50643c093542a7656
-updated: 2017-09-02T14:34:41.985900449-04:00
+updated: 2017-09-10T12:54:26.3269891-04:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -58,7 +58,7 @@ imports:
 - name: github.com/sirupsen/logrus
   version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
 - name: golang.org/x/crypto
-  version: 81e90905daefcd6fd217b62423c0908922eadb30
+  version: 9ba3862cf6a5452ae579de98f9364dd2e544844c
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net

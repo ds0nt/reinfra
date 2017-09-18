@@ -1,9 +1,11 @@
 
+default:
+
 
 regenerate:
 	protoc --go_out=plugins=grpc:. test/test.proto
 
-test: regenerate
+test:
 	ginkgo test -v .
 
-PHONY: regenerate test
+PHONY: test-travis regenerate test

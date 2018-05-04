@@ -9,21 +9,26 @@ import (
 
 type Func struct {
 	readymanager.ReadyManager
-	runFn  func(s *service.Service) error
-	stopFn func(s *service.Service) error
+	RunFn  func(s *service.Service) error
+	StopFn func(s *service.Service) error
 }
 
 func (a *Func) Run(s *service.Service) (err error) {
-	err = a.runFn(s)
-	if err != nil {
-		return err
+	if a.RunFn != nil {
+		err = a.RunFn(s)
+		if err != nil {
+			return err
+		}
 	}
 	a.ReadyManager.SetReady()
 	return nil
 }
 
 func (a *Func) Stop(s *service.Service) error {
-	return a.stopFn(s)
+	if a.StopFn != nil {
+		return a.StopFn(s)
+	}
+	return nil
 }
 
 func (s *Func) Ready() bool {

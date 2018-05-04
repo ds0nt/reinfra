@@ -36,12 +36,13 @@ func (s *GRPCServer) Server() *grpc.Server {
 
 	// serve
 	s.server = grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-		grpc_middleware.WithUnaryServerChain(
-			grpc_prometheus.UnaryServerInterceptor,
-			logmw.UnaryServerInterceptor(s.entry),
-			s.GRPCOptions...,
-		),
+		append([]grpc.ServerOption{
+			grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
+			grpc_middleware.WithUnaryServerChain(
+				grpc_prometheus.UnaryServerInterceptor,
+				logmw.UnaryServerInterceptor(s.entry),
+			),
+		}, s.GRPCOptions...)...,
 	)
 	grpc_prometheus.Register(s.server)
 

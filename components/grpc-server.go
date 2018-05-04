@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/ds0nt/reinfra/config"
@@ -22,7 +20,8 @@ type GRPCServer struct {
 	server *grpc.Server
 	Addr   string
 	readymanager.ReadyManager
-	entry *logrus.Entry
+	entry       *logrus.Entry
+	GRPCOptions []grpc.ServerOption
 }
 
 func (s *GRPCServer) Init(svc *service.Service) {
@@ -41,6 +40,7 @@ func (s *GRPCServer) Server() *grpc.Server {
 		grpc_middleware.WithUnaryServerChain(
 			grpc_prometheus.UnaryServerInterceptor,
 			logmw.UnaryServerInterceptor(s.entry),
+			s.GRPCOptions...,
 		),
 	)
 	grpc_prometheus.Register(s.server)

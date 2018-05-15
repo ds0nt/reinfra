@@ -2,11 +2,11 @@ package reinfra
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	"github.com/ds0nt/reinfra/components"
 	"github.com/ds0nt/reinfra/service"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -46,7 +46,7 @@ func Init(obj interface{}) {
 			continue
 		}
 
-		fmt.Printf("Initializing %s.%s\n", objT.String(), f.Type().String())
+		logrus.WithField("source", "reinfra").Printf("initializing %s.%s\n", objT.String(), f.Type().String())
 		f.Set(reflect.New(f.Type().Elem()))
 
 	}
@@ -64,7 +64,7 @@ func Init(obj interface{}) {
 	cmps := reflectServiceComponents(obj)
 	for _, c := range cmps {
 		if v, ok := c.(service.Initer); ok {
-			fmt.Printf("Running Init(svc) for %s\n", reflect.TypeOf(c).String())
+			logrus.WithField("source", "reinfra").Printf("Running Init(svc) for %s\n", reflect.TypeOf(c).String())
 			v.Init(svc)
 		}
 	}
@@ -80,7 +80,7 @@ func Run(ctx context.Context, obj interface{}) chan error {
 
 	cmps := reflectServiceComponents(obj)
 	for _, c := range cmps {
-		fmt.Printf("Registering %s\n", reflect.TypeOf(c).String())
+		logrus.WithField("source", "reinfra").Printf("Registering %s\n", reflect.TypeOf(c).String())
 		svc.RegisterComponent(c)
 	}
 
@@ -119,7 +119,7 @@ func reflectServiceComponents(obj interface{}) []service.ServiceComponent {
 
 		valueField := f.Interface()
 
-		fmt.Printf("Scanning %s.%s\n", val.Type().String(), tf.Type.String())
+		logrus.WithField("source", "reinfra").Printf("Scanning %s.%s\n", val.Type().String(), tf.Type.String())
 		if tf.Type.Implements(dialerType.Elem()) {
 			cmps = append(cmps, components.WrapDialer(valueField.(components.GRPCDialer)))
 			continue

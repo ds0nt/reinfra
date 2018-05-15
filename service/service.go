@@ -36,11 +36,15 @@ type Service struct {
 	components    []ServiceComponent
 	readymanager.ReadyManager
 	logger *logrus.Logger
+	fields logrus.Fields
 	entry  *logrus.Entry
 }
 
 func (s *Service) Log() *logrus.Entry {
-	return s.entry
+	return s.entry.WithFields(s.fields)
+}
+func (s *Service) SetLogFields(fields logrus.Fields) {
+	s.fields = fields
 }
 
 // Init initializes a service. It is run before components init, and before any Run methods are called.

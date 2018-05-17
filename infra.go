@@ -42,7 +42,7 @@ func Init(obj interface{}) {
 			continue
 		}
 		f := val.Field(i)
-		if !f.IsNil() {
+		if f.Kind() != reflect.Ptr || !f.IsNil() {
 			continue
 		}
 

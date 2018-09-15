@@ -11,6 +11,7 @@ type Func struct {
 	readymanager.ReadyManager
 	RunFn  func(s *service.Service) error
 	StopFn func(s *service.Service) error
+	Name   string
 }
 
 func (a *Func) Run(s *service.Service) (err error) {
@@ -42,4 +43,11 @@ func (s *Func) WaitForReady(ctx context.Context) {
 	case <-s.ReadyManager.ReadyCh():
 		return
 	}
+}
+
+func (s *Func) String() string {
+	if s.Name == "" {
+		return "func"
+	}
+	return s.Name
 }

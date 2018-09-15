@@ -31,8 +31,8 @@ func isHandledPkg(pkgPath string) bool {
 // Init sets the values for all infra field pointers in a service
 func Init(obj interface{}) {
 	var (
-		objT = reflect.TypeOf(obj)
-		val  = reflect.ValueOf(obj).Elem()
+		// objT = reflect.TypeOf(obj)
+		val = reflect.ValueOf(obj).Elem()
 	)
 
 	// instantiate all pointers
@@ -46,7 +46,7 @@ func Init(obj interface{}) {
 			continue
 		}
 
-		logrus.WithField("source", "reinfra").Printf("initializing %s.%s\n", objT.String(), f.Type().String())
+		// logrus.Printf("initializing %s", objT.String(), f.Type().String())
 		f.Set(reflect.New(f.Type().Elem()))
 
 	}
@@ -64,7 +64,7 @@ func Init(obj interface{}) {
 	cmps := reflectServiceComponents(obj)
 	for _, c := range cmps {
 		if v, ok := c.(service.Initer); ok {
-			logrus.WithField("source", "reinfra").Printf("Running Init(svc) for %s\n", reflect.TypeOf(c).String())
+			// logrus.Printf("running init for %s", reflect.TypeOf(c).String())
 			v.Init(svc)
 		}
 	}
@@ -80,7 +80,7 @@ func Run(ctx context.Context, obj interface{}) chan error {
 
 	cmps := reflectServiceComponents(obj)
 	for _, c := range cmps {
-		logrus.WithField("source", "reinfra").Printf("Registering %s\n", reflect.TypeOf(c).String())
+		logrus.WithField("Svc", svc.Name).Printf("registering %s", reflect.TypeOf(c).String())
 		svc.RegisterComponent(c)
 	}
 
@@ -98,6 +98,7 @@ func reflectService(obj interface{}) *service.Service {
 			continue
 		}
 		if x, ok := f.Interface().(*service.Service); ok {
+			x.Name = val.Type().String()
 			return x
 		}
 	}
@@ -119,7 +120,7 @@ func reflectServiceComponents(obj interface{}) []service.ServiceComponent {
 
 		valueField := f.Interface()
 
-		logrus.WithField("source", "reinfra").Printf("Scanning %s.%s\n", val.Type().String(), tf.Type.String())
+		// logrus.Printf("scanning %s.%s", val.Type().String(), tf.Type.String())
 		if tf.Type.Implements(dialerType.Elem()) {
 			cmps = append(cmps, components.WrapDialer(valueField.(components.GRPCDialer)))
 			continue

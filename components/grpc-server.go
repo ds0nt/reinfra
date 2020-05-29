@@ -37,7 +37,7 @@ func (s *GRPCServer) Server() *grpc.Server {
 	// serve
 	s.server = grpc.NewServer(
 		grpc_middleware.WithUnaryServerChain(
-			logmw.UnaryServerInterceptor(s.entry),
+			logmw.UnaryServerInterceptor(s.log),
 		),
 	)
 

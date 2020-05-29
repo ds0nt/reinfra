@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/log/logrusadapter"
-
 	"github.com/ds0nt/reinfra/config"
 	"github.com/ds0nt/reinfra/readymanager"
 	"github.com/ds0nt/reinfra/service"
@@ -31,7 +29,6 @@ func (a *Postgres) Run(s *service.Service) (err error) {
 		a.config = config.EnvPostgresConfig()
 	}
 
-	a.config.Logger = logrusadapter.NewLogger(log)
 	a.config.AcquireTimeout = time.Second * 30
 
 	log.Println("creating conn pool")

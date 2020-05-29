@@ -2,6 +2,7 @@ package components
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ds0nt/reinfra/readymanager"
 	"github.com/ds0nt/reinfra/service"
@@ -32,6 +33,10 @@ func (s *DialerComponent) WaitForReady(ctx context.Context) {
 	case <-s.ReadyManager.ReadyCh():
 		return
 	}
+}
+
+func (s *DialerComponent) String() string {
+	return fmt.Sprintf("%s", s.dialer)
 }
 
 // WrapDialer turns a dialer into a service component :)

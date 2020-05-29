@@ -2,7 +2,6 @@ package components
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -18,11 +17,13 @@ type HTTPServer struct {
 	readymanager.ReadyManager
 }
 
-func (s *HTTPServer) Run(*service.Service) error {
+func (s *HTTPServer) Run(svc *service.Service) error {
+	log := svc.Log().WithField("component", s)
 	if len(s.Addr) == 0 {
 		s.Addr = config.HTTPAddr
 	}
-	fmt.Println("HTTP Server listening on", s.Addr)
+	log.Println("listening on", s.Addr)
+	defer log.Println("stopped")
 	s.server = &http.Server{Addr: s.Addr}
 	s.server.Handler = s.HTTPHandler
 
@@ -48,4 +49,8 @@ func (s *HTTPServer) WaitForReady(ctx context.Context) {
 	case <-s.ReadyManager.ReadyCh():
 		return
 	}
+}
+
+func (s *HTTPServer) String() string {
+	return "http-" + s.Addr
 }

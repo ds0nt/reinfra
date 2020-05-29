@@ -27,6 +27,7 @@ func EnvPostgresConfig() pgx.ConnPoolConfig {
 			Database: os.Getenv("DB_DATABASE"),
 			User:     os.Getenv("DB_USER"),
 			Password: os.Getenv("DB_PASSWORD"),
+			LogLevel: pgx.LogLevelWarn,
 		},
 		// TLSConfig: os.Getenv("DB_DATABASE"),
 	}

@@ -21,11 +21,12 @@ type GRPCServer struct {
 	server *grpc.Server
 	Addr   string
 	readymanager.ReadyManager
-	entry *logrus.Entry
+	log         *logrus.Entry
+	GRPCOptions []grpc.ServerOption
 }
 
 func (s *GRPCServer) Init(svc *service.Service) {
-	s.entry = svc.Log()
+	s.log = svc.Log().WithField("component", s)
 }
 
 func (s *GRPCServer) Server() *grpc.Server {
@@ -48,8 +49,8 @@ func (s *GRPCServer) Run(svc *service.Service) error {
 		s.Addr = config.GRPCAddr
 	}
 
-	fmt.Println("GRPC Server listening on", s.Addr)
-	defer fmt.Println("GRPC server stopped")
+	s.log.Println("listening on", s.Addr)
+	defer s.log.Println("stopped")
 
 	// create tcp C
 	lis, err := net.Listen("tcp", s.Addr)
@@ -96,4 +97,8 @@ func (s *GRPCServer) WaitForReady(ctx context.Context) {
 	case <-s.ReadyManager.ReadyCh():
 		return
 	}
+}
+
+func (s *GRPCServer) String() string {
+	return "grpc-" + s.Addr
 }

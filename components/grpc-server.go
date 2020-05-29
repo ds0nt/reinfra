@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/sirupsen/logrus"
 
 	"github.com/ds0nt/reinfra/config"
-	"github.com/ds0nt/reinfra/logger-middleware"
+	logmw "github.com/ds0nt/reinfra/logger-middleware"
 	"github.com/ds0nt/reinfra/readymanager"
 	"github.com/ds0nt/reinfra/service"
 
@@ -27,7 +26,6 @@ type GRPCServer struct {
 
 func (s *GRPCServer) Init(svc *service.Service) {
 	s.entry = svc.Log()
-	s.entry.Print("OH MY GOD IT'S A LOGGER")
 }
 
 func (s *GRPCServer) Server() *grpc.Server {
@@ -37,13 +35,10 @@ func (s *GRPCServer) Server() *grpc.Server {
 
 	// serve
 	s.server = grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
 		grpc_middleware.WithUnaryServerChain(
-			grpc_prometheus.UnaryServerInterceptor,
 			logmw.UnaryServerInterceptor(s.entry),
 		),
 	)
-	grpc_prometheus.Register(s.server)
 
 	return s.server
 }

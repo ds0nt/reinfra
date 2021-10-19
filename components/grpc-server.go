@@ -6,6 +6,7 @@ import (
 	"net"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/ds0nt/reinfra/config"
@@ -34,13 +35,13 @@ func (s *GRPCServer) Server() *grpc.Server {
 		return s.server
 	}
 
-	// serve
 	s.server = grpc.NewServer(
+		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
 		grpc_middleware.WithUnaryServerChain(
 			logmw.UnaryServerInterceptor(s.log),
+			grpc_prometheus.UnaryServerInterceptor,
 		),
 	)
-
 	return s.server
 }
 

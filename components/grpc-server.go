@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/ds0nt/reinfra/config"
-	"github.com/ds0nt/reinfra/logger-middleware"
+	logmw "github.com/ds0nt/reinfra/logger-middleware"
 	"github.com/ds0nt/reinfra/readymanager"
 	"github.com/ds0nt/reinfra/service"
 
@@ -22,12 +22,12 @@ type GRPCServer struct {
 	server *grpc.Server
 	Addr   string
 	readymanager.ReadyManager
-	entry *logrus.Entry
+	log         *logrus.Entry
+	GRPCOptions []grpc.ServerOption
 }
 
 func (s *GRPCServer) Init(svc *service.Service) {
-	s.entry = svc.Log()
-	s.entry.Print("OH MY GOD IT'S A LOGGER")
+	s.log = svc.Log().WithField("component", s)
 }
 
 func (s *GRPCServer) Server() *grpc.Server {
@@ -35,16 +35,13 @@ func (s *GRPCServer) Server() *grpc.Server {
 		return s.server
 	}
 
-	// serve
 	s.server = grpc.NewServer(
 		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
 		grpc_middleware.WithUnaryServerChain(
+			logmw.UnaryServerInterceptor(s.log),
 			grpc_prometheus.UnaryServerInterceptor,
-			logmw.UnaryServerInterceptor(s.entry),
 		),
 	)
-	grpc_prometheus.Register(s.server)
-
 	return s.server
 }
 
@@ -53,8 +50,8 @@ func (s *GRPCServer) Run(svc *service.Service) error {
 		s.Addr = config.GRPCAddr
 	}
 
-	fmt.Println("GRPC Server listening on", s.Addr)
-	defer fmt.Println("GRPC server stopped")
+	s.log.Println("listening on", s.Addr)
+	defer s.log.Println("stopped")
 
 	// create tcp C
 	lis, err := net.Listen("tcp", s.Addr)
@@ -101,4 +98,8 @@ func (s *GRPCServer) WaitForReady(ctx context.Context) {
 	case <-s.ReadyManager.ReadyCh():
 		return
 	}
+}
+
+func (s *GRPCServer) String() string {
+	return "grpc-" + s.Addr
 }

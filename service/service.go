@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -36,11 +38,16 @@ type Service struct {
 	components    []ServiceComponent
 	readymanager.ReadyManager
 	logger *logrus.Logger
+	fields logrus.Fields
 	entry  *logrus.Entry
+	Name   string
 }
 
 func (s *Service) Log() *logrus.Entry {
-	return s.entry
+	return s.entry.WithFields(s.fields).WithField("svc", s.Name)
+}
+func (s *Service) SetLogFields(fields logrus.Fields) {
+	s.fields = fields
 }
 
 // Init initializes a service. It is run before components init, and before any Run methods are called.
@@ -56,10 +63,36 @@ func (s *Service) Run(ctx context.Context) chan error {
 	stopCh := make(chan error) //, len(s.components))
 	errors := make(chan error) //, len(s.components)+1)
 
+	logReadiness := func() {
+		t := time.NewTicker(time.Second * 5)
+
+		for {
+			unready := []string{}
+			for _, c := range s.components {
+				if !c.Ready() {
+					unready = append(unready, fmt.Sprintf("%s", c))
+				}
+			}
+			if !s.Ready() {
+				s.Log().Warnf("components unready: %s", strings.Join(unready, ", "))
+			}
+			select {
+			case <-s.Context().Done():
+				return
+			case <-s.ReadyCh():
+				s.Log().Println("service ready")
+				return
+			case <-t.C:
+
+			}
+		}
+	}
+
 	for _, c := range s.components {
 		go func(c ServiceComponent) {
 			err := c.Run(s)
 			if err != nil {
+				s.Log().Errorln(err)
 				stopCh <- err
 			}
 		}(c)
@@ -68,6 +101,7 @@ func (s *Service) Run(ctx context.Context) chan error {
 		time.Sleep(time.Millisecond * 10)
 	}
 
+	go logReadiness()
 	s.ReadyManager.SetReady()
 
 	go func() {
